@@ -1,0 +1,46 @@
+# ------------------------------------------------------------------
+# Coleta de dados da Receita Federal — mantidos SOMENTE na copia local.
+# Nunca sobem para o repositorio publico. Sem eles, "collect"/"all" falham
+# com mensagem clara; "build-dashboard" continua funcionando normalmente
+# a partir do CSV ja versionado (ver secao de dados abaixo).
+# ------------------------------------------------------------------
+pyfiles/collector.py
+pyfiles/http_client.py
+pyfiles/query_builder.py
+pyfiles/dsr_parser.py
+pyfiles/scraper_config.py
+pyfiles/coleta_irpf_combinado.py
+
+# ------------------------------------------------------------------
+# Dados: mantem no repositorio SOMENTE o CSV usado para montar o
+# dashboard publicado. Qualquer outro CSV (debug, parcial, de outra
+# rodada, de outra UF etc.) fica de fora.
+# ------------------------------------------------------------------
+data/raw/*.csv
+!data/raw/irpf_municipio_profissao.csv
+data/raw/debug_*.json
+
+# Checkpoints e logs sao artefatos de execucao local da coleta — como os
+# proprios scripts de coleta tambem nao entram no repo, nao ha por que
+# versionar o progresso/logs deles.
+data/checkpoints/
+data/logs/
+
+# ------------------------------------------------------------------
+# Python
+# ------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# ------------------------------------------------------------------
+# Editor / SO
+# ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.ini
