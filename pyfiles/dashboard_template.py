@@ -75,13 +75,13 @@ TEMPLATE_HTML = """<!DOCTYPE html>
   .mega-panel{
     background:var(--bg-panel); border-radius:24px; padding:28px 28px 32px;
   }
+  .mega-panel.municipios-panel{margin-top:18px;}
 
   .section-label{
     font-size:12px; text-transform:uppercase; letter-spacing:1.2px;
     color:var(--blue-dark); margin:0 0 12px; font-weight:700;
     font-family:var(--font-body);
   }
-  .section-label.spaced{margin-top:30px;}
 
   .cards-grid{
     display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:12px;
@@ -149,18 +149,11 @@ TEMPLATE_HTML = """<!DOCTYPE html>
   .table-scroll::-webkit-scrollbar-thumb{background:var(--blue-border); border-radius:4px;}
 
   .detail-head{display:flex; align-items:flex-start; gap:14px; margin-bottom:18px;}
-  .rank-stamp{
-    flex:0 0 auto; width:44px; height:44px; border-radius:50%;
-    background:var(--bg-card); display:flex; align-items:center;
-    justify-content:center; font-family:var(--font-display); font-size:14px; font-weight:700;
-    color:var(--blue-dark); margin-top:2px;
-  }
-  .rank-stamp.state{color:var(--magenta-text);}
   .detail-head h2{
     font-family:var(--font-display); font-weight:700; font-size:24px; margin:0 0 2px;
     color:var(--blue-dark);
   }
-  .detail-head .sub{color:var(--blue-mid); font-size:13px; margin:0; font-weight:600;}
+  .detail-head .sub{color:var(--blue-dark); font-size:13.5px; margin:0; font-weight:700;}
 
   .detail-cards{
     display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:10px; margin-bottom:24px;
@@ -179,30 +172,32 @@ TEMPLATE_HTML = """<!DOCTYPE html>
   .metric-btn.active{border-color:var(--magenta); color:var(--magenta-text);}
   .metric-btn:hover{color:var(--blue-dark);}
 
-  .bar-row{display:flex; align-items:center; gap:10px; margin-bottom:9px;}
+  .bar-row{display:grid; grid-template-columns:220px 1fr 130px; align-items:center; gap:10px; margin-bottom:9px;}
   .bar-label{
-    flex:0 0 220px; font-size:12px; color:var(--blue-dark); text-align:right; font-weight:600;
+    font-size:12px; color:var(--blue-dark); text-align:right; font-weight:600;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .bar-track{flex:1; background:var(--bg-card); border-radius:10px; height:20px; position:relative; overflow:hidden;}
+  .bar-track{
+    background:var(--bg-card); border:1px solid var(--blue-border); border-radius:10px;
+    height:20px; position:relative; overflow:hidden;
+  }
   .bar-fill{height:100%; background:var(--magenta); border-radius:10px;}
   .bar-fill-overlay{
-    position:absolute; left:0; top:50%; transform:translateY(-50%);
-    height:8px; background:var(--blue-dark); border-radius:6px;
+    position:absolute; left:0; top:0;
+    height:100%; background:var(--blue-dark); border-radius:0;
   }
   .chart-legend{
-    display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--blue-mid);
+    display:flex; align-items:center; gap:8px; font-size:13px; color:var(--blue-mid);
     font-weight:600; margin:14px 0 0;
   }
-  .chart-legend .dot{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:2px;}
-  .chart-legend .dot-tax{background:var(--blue-dark);}
-  .chart-legend .dot-rest{background:var(--magenta); margin-left:10px;}
+  .chart-legend .legend-swatch{width:24px; height:9px; border-radius:5px; display:inline-block; margin-right:4px; vertical-align:middle;}
+  .chart-legend .legend-swatch-tax{background:var(--blue-dark);}
+  .chart-legend .legend-swatch-rest{background:var(--magenta); margin-left:12px;}
   .bar-value{
-    white-space:nowrap;
-    flex:0 0 auto; font-family:var(--font-body); font-weight:700; font-size:11.5px; color:var(--blue-dark);
-    min-width:76px;
+    white-space:nowrap; text-align:right;
+    font-family:var(--font-body); font-weight:700; font-size:11.5px; color:var(--blue-dark);
   }
-  @media (max-width:640px){ .bar-label{flex-basis:120px; font-size:11px;} }
+  @media (max-width:640px){ .bar-row{grid-template-columns:120px 1fr 105px;} .bar-label{font-size:11px;} }
 
   footer{
     margin-top:32px; color:var(--blue-muted); font-size:11.5px; line-height:1.7; text-align:center;
@@ -226,12 +221,12 @@ TEMPLATE_HTML = """<!DOCTYPE html>
     <span class="badge-exercicio">Exercício 2026 · Receita Federal</span>
   </header>
 
-  <div class="mega-panel">
-
+  <div class="mega-panel state-panel">
     <div class="section-label">Estado · Espírito Santo (agregado)</div>
     <div class="cards-grid" id="stateCards"></div>
+  </div>
 
-    <div class="section-label spaced">Municípios</div>
+  <div class="mega-panel municipios-panel">
     <div class="main-grid">
       <div>
         <input type="text" class="search-input" id="searchBox" placeholder="Buscar município…">
@@ -295,6 +290,13 @@ TEMPLATE_HTML = """<!DOCTYPE html>
     if (n == null) return '—';
     if (n >= 1000) return 'R$ ' + (n/1000).toLocaleString('pt-BR',{maximumFractionDigits:1}) + 'K';
     return 'R$ ' + n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  };
+  // Padrao de 2 casas decimais para os valores que identificam as barras do grafico
+  // (declarantes fica com fmtInt, sem casas decimais, por ser contagem de pessoas)
+  const fmtR$bar = n => {
+    if (n == null) return '—';
+    if (n >= 1000) return 'R$ ' + (n/1000).toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2}) + 'K';
+    return 'R$ ' + n.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2});
   };
 
   function weightedState(key){
@@ -416,17 +418,15 @@ TEMPLATE_HTML = """<!DOCTYPE html>
     const sourceProfs = isState ? STATE_PROFS : d.profs;
     const profs = [...sourceProfs].sort((a,b) => (b[idx]||0) - (a[idx]||0)).slice(0, 12);
     const maxVal = Math.max(...profs.map(p => p[idx] || 0), 1);
-    const fmtBar = profMetric === 'q' ? fmtInt : fmtR$compact;
+    const fmtBar = profMetric === 'q' ? fmtInt : fmtR$bar;
     const isRendaAnual = profMetric === 'rt';
 
     const headHtml = isState
-      ? `<div class="rank-stamp state">ES</div>
-         <div>
+      ? `<div>
            <h2>Espírito Santo</h2>
            <p class="sub">Agregado dos 78 municípios · todas as profissões</p>
          </div>`
-      : `<div class="rank-stamp">${rankIndex[selected]}º</div>
-         <div>
+      : `<div>
            <h2>${d.disp}</h2>
            <p class="sub">${rankIndex[selected]}º maior município do ES em nº de declarantes</p>
          </div>`;
@@ -440,7 +440,7 @@ TEMPLATE_HTML = """<!DOCTYPE html>
         ${metrics.map(m => `<button class="metric-btn ${m===profMetric?'active':''}" data-metric="${m}">${metricLabels[m]}</button>`).join('')}
       </div>
       <div id="profChart"></div>
-      ${isRendaAnual ? '<div class="chart-legend"><span class="dot dot-rest"></span>Renda anual total &nbsp; <span class="dot dot-tax"></span>Renda tributável (sobreposta, mesma escala)</div>' : ''}
+      ${isRendaAnual ? '<div class="chart-legend"><span class="legend-swatch legend-swatch-rest"></span>Renda anual total &nbsp; <span class="legend-swatch legend-swatch-tax"></span>Renda tributável (sobreposta, mesma escala)</div>' : ''}
     `;
 
     const chart = document.getElementById('profChart');
