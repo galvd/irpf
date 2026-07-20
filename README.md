@@ -4,6 +4,8 @@ Dashboard interativo com o perfil agregado dos declarantes de IRPF do Espírito
 Santo, por município e por profissão. Dados públicos da Receita Federal,
 agregados no nível UF × município × profissão.
 
+Acesse o dashboard publicado em https://galvd.github.io/irpf
+
 ## Estrutura
 
 ```
@@ -44,6 +46,8 @@ profissão, e grava `index.html` na raiz do projeto — pronto para abrir no
 navegador ou publicar via GitHub Pages.
 
 ## Dashboard
+
+Publicado em https://galvd.github.io/irpf
 
 `index.html` é autocontido (dados embutidos no próprio arquivo) — abre direto no
 navegador, sem servidor.
